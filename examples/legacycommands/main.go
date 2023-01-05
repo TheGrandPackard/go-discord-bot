@@ -36,7 +36,7 @@ var (
 func main() {
 	// Configure and initialize the bot
 	bot, err := godiscordbot.New(godiscordbot.Options{
-		DiscordToken:           "MTA1ODI5MjM1MTMyOTYzNjQxMg.GZiBmF.UURenZJ9GRjhrORynNeHnDPonNxQkuJ6xR1tI0",
+		DiscordToken:           "<DISCORD_TOKEN_GOES_HERE>",
 		GuildID:                "",
 		Intents:                discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates,
 		CommandDeletionTimeout: time.Second * 30,

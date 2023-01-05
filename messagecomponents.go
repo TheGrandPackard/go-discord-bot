@@ -7,7 +7,7 @@ import (
 )
 
 // Map message component handlers for their alias
-func (d *DiscordBot) MapMessageComponentHandlers(handlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)) {
+func (d *DiscordBot) MapMessageComponentHandlers(handlers map[string]func(d *DiscordBot, i *discordgo.InteractionCreate)) {
 	for alias, handler := range handlers {
 		d.messageComponentHandlers[alias] = handler
 	}
@@ -21,20 +21,20 @@ func (d *DiscordBot) messageComponentProcessor(s *discordgo.Session, i *discordg
 		action := strings.Split(i.MessageComponentData().CustomID, ":")[0]
 
 		if h, ok := d.messageComponentHandlers[action]; ok {
-			h(s, i)
+			h(d, i)
 		}
 	case discordgo.InteractionModalSubmit:
 		// Parse modal submit action and ID
 		action := strings.Split(i.ModalSubmitData().CustomID, ":")[0]
 
 		if h, ok := d.messageComponentHandlers[action]; ok {
-			h(s, i)
+			h(d, i)
 		}
 	case discordgo.InteractionApplicationCommandAutocomplete:
 		data := i.ApplicationCommandData()
 
 		if h, ok := d.messageComponentHandlers[data.Name]; ok {
-			h(s, i)
+			h(d, i)
 		}
 	}
 }

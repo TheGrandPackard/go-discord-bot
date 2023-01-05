@@ -3,6 +3,7 @@ package godiscordbot
 import (
 	"time"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/rs/zerolog/log"
 )
 
@@ -64,4 +65,8 @@ func validateMessage(message string) string {
 	}
 
 	return message
+}
+
+func (d *DiscordBot) InteractionRespond(interaction *discordgo.Interaction, resp *discordgo.InteractionResponse) error {
+	return d.s.InteractionRespond(interaction, resp)
 }

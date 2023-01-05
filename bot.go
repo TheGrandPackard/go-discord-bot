@@ -29,11 +29,11 @@ type DiscordBot struct {
 	legacyCommandHandlers map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string)
 
 	// Slash Commands
-	slashCommandHandlers    map[*discordgo.ApplicationCommand]func(s *discordgo.Session, i *discordgo.InteractionCreate)
+	slashCommandHandlers    map[*discordgo.ApplicationCommand]func(d *DiscordBot, i *discordgo.InteractionCreate)
 	registeredSlashCommands []*discordgo.ApplicationCommand
 
 	// Message Components
-	messageComponentHandlers map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
+	messageComponentHandlers map[string]func(d *DiscordBot, i *discordgo.InteractionCreate)
 }
 
 func New(options Options) (*DiscordBot, error) {
@@ -42,11 +42,16 @@ func New(options Options) (*DiscordBot, error) {
 		CommandDeletionTimeout: options.CommandDeletionTimeout,
 		CommandResponseTimeout: options.CommandResponseTimeout,
 
-		// Handlers
-		legacyCommandPrefix:      options.LegacyCommandPrefix,
-		legacyCommandHandlers:    map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string){},
-		slashCommandHandlers:     map[*discordgo.ApplicationCommand]func(s *discordgo.Session, i *discordgo.InteractionCreate){},
-		messageComponentHandlers: map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){},
+		// Legacy Commands
+		legacyCommandPrefix:   options.LegacyCommandPrefix,
+		legacyCommandHandlers: map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string){},
+
+		// Slash Commands
+		slashCommandHandlers:    map[*discordgo.ApplicationCommand]func(d *DiscordBot, i *discordgo.InteractionCreate){},
+		registeredSlashCommands: []*discordgo.ApplicationCommand{},
+
+		// Message Components
+		messageComponentHandlers: map[string]func(d *DiscordBot, i *discordgo.InteractionCreate){},
 	}
 
 	// Initialize Discord Chat API

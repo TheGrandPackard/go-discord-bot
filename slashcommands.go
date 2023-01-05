@@ -7,9 +7,9 @@ import (
 )
 
 // Map slash command handlers for their alias
-func (d *DiscordBot) MapSlashCommands(commands map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string)) {
-	for alias, command := range commands {
-		d.legacyCommandHandlers[alias] = command
+func (d *DiscordBot) MapSlashCommands(commands map[*discordgo.ApplicationCommand]func(d *DiscordBot, i *discordgo.InteractionCreate)) {
+	for command, handler := range commands {
+		d.slashCommandHandlers[command] = handler
 	}
 }
 
@@ -20,7 +20,7 @@ func (d *DiscordBot) slashCommandProcessor(s *discordgo.Session, i *discordgo.In
 		// This would be more efficient as a map instead of an array, but is simpler this way for how few commands there are to process
 		for cmd, handler := range d.slashCommandHandlers {
 			if cmd.Name == i.ApplicationCommandData().Name {
-				handler(s, i)
+				handler(d, i)
 				return
 			}
 		}

@@ -13,16 +13,20 @@ type Options struct {
 	Intents                discordgo.Intent
 	CommandDeletionTimeout time.Duration
 	CommandResponseTimeout time.Duration
+	RegisterCommands       bool
+	UnregisterCommands     bool
 	LegacyCommandPrefix    string
 }
 
 type DiscordBot struct {
-	s       *discordgo.Session
-	GuildID string
+	s *discordgo.Session
 
 	// Configurations
+	GuildID                string
 	CommandDeletionTimeout time.Duration
 	CommandResponseTimeout time.Duration
+	RegisterCommands       bool
+	UnregisterCommands     bool
 
 	// Legacy Commands
 	legacyCommandPrefix   string
@@ -38,9 +42,12 @@ type DiscordBot struct {
 
 func New(options Options) (*DiscordBot, error) {
 	bot := &DiscordBot{
+		// Configurations
 		GuildID:                options.GuildID,
 		CommandDeletionTimeout: options.CommandDeletionTimeout,
 		CommandResponseTimeout: options.CommandResponseTimeout,
+		RegisterCommands:       options.RegisterCommands,
+		UnregisterCommands:     options.UnregisterCommands,
 
 		// Legacy Commands
 		legacyCommandPrefix:   options.LegacyCommandPrefix,
@@ -77,9 +84,26 @@ func New(options Options) (*DiscordBot, error) {
 
 func (d *DiscordBot) Start() error {
 	// Open websocket to Discord API
-	return d.s.Open()
+	err := d.s.Open()
+	if err != nil {
+		return err
+	}
+
+	// Register commands asynchronously
+	go d.RegisterSlashCommands()
+
+	return nil
 }
 
 func (d *DiscordBot) Stop() error {
-	return d.s.Close()
+	// Close websocket to Discord API
+	err := d.s.Close()
+	if err != nil {
+		return err
+	}
+
+	// Unregister commands synchronously
+	d.UnregisterSlashCommands()
+
+	return nil
 }

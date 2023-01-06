@@ -8,31 +8,46 @@ import (
 )
 
 type Options struct {
-	DiscordToken           string
-	GuildID                string
-	Intents                discordgo.Intent
+	// Token to authenticate the bot with the Discord API
+	DiscordToken string
+	// Unused
+	GuildID string
+
+	// Any intents necessary for the bot to operate
+	// * discordgo.IntentsGuildMessages - required for the bot to process legacy commands
+	// * discordgo.IntentsGuildVoiceStates - required for the bot to join voice channels and play audio
+	Intents discordgo.Intent
+
+	// Legacy Commands
+	// The timeout before deleting user messages
 	CommandDeletionTimeout time.Duration
+	// The timeout before deleting bot responses
 	CommandResponseTimeout time.Duration
-	RegisterCommands       bool
-	UnregisterCommands     bool
-	LegacyCommandPrefix    string
+	// Prefix for legacy commands, such as "!"
+	LegacyCommandPrefix string
+
+	// Slash Commands
+	// Whether or not to register slash commands when starting the bot
+	RegisterSlashCommands bool
+	// Whether or not to unregister slash commands when starting the bot
+	UnregisterSlashCommands bool
 }
 
 type DiscordBot struct {
 	s *discordgo.Session
 
 	// Configurations
-	GuildID                string
-	CommandDeletionTimeout time.Duration
-	CommandResponseTimeout time.Duration
-	RegisterCommands       bool
-	UnregisterCommands     bool
+	GuildID string
 
 	// Legacy Commands
-	legacyCommandPrefix   string
-	legacyCommandHandlers map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string)
+	CommandDeletionTimeout time.Duration
+	CommandResponseTimeout time.Duration
+	legacyCommandPrefix    string
+	legacyCommandHandlers  map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string)
 
 	// Slash Commands
+	RegisterSlashCommands   bool
+	UnregisterSlashCommands bool
 	slashCommandHandlers    map[*discordgo.ApplicationCommand]func(d *DiscordBot, i *discordgo.InteractionCreate)
 	registeredSlashCommands []*discordgo.ApplicationCommand
 
@@ -43,17 +58,18 @@ type DiscordBot struct {
 func New(options Options) (*DiscordBot, error) {
 	bot := &DiscordBot{
 		// Configurations
-		GuildID:                options.GuildID,
-		CommandDeletionTimeout: options.CommandDeletionTimeout,
-		CommandResponseTimeout: options.CommandResponseTimeout,
-		RegisterCommands:       options.RegisterCommands,
-		UnregisterCommands:     options.UnregisterCommands,
+		GuildID: options.GuildID,
+		// Whether or not to register slash commands
 
 		// Legacy Commands
-		legacyCommandPrefix:   options.LegacyCommandPrefix,
-		legacyCommandHandlers: map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string){},
+		CommandDeletionTimeout: options.CommandDeletionTimeout,
+		CommandResponseTimeout: options.CommandResponseTimeout,
+		legacyCommandPrefix:    options.LegacyCommandPrefix,
+		legacyCommandHandlers:  map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string){},
 
 		// Slash Commands
+		RegisterSlashCommands:   options.RegisterSlashCommands,
+		UnregisterSlashCommands: options.UnregisterSlashCommands,
 		slashCommandHandlers:    map[*discordgo.ApplicationCommand]func(d *DiscordBot, i *discordgo.InteractionCreate){},
 		registeredSlashCommands: []*discordgo.ApplicationCommand{},
 
@@ -76,7 +92,7 @@ func New(options Options) (*DiscordBot, error) {
 	bot.s.AddHandler(bot.slashCommandProcessor)
 	// Register the message component processor func as a callback for message component handlers
 	bot.s.AddHandler(bot.messageComponentProcessor)
-	// Declare intents necessary for reading messages and interacting with voice channels
+	// Declare intents necessary for the bot (reading messages, interacting with voice channels, etc.)
 	bot.s.Identify.Intents = options.Intents
 
 	return bot, nil
@@ -90,7 +106,7 @@ func (d *DiscordBot) Start() error {
 	}
 
 	// Register commands asynchronously
-	go d.RegisterSlashCommands()
+	go d.registerSlashCommands()
 
 	return nil
 }
@@ -103,7 +119,7 @@ func (d *DiscordBot) Stop() error {
 	}
 
 	// Unregister commands synchronously
-	d.UnregisterSlashCommands()
+	d.unregisterSlashCommands()
 
 	return nil
 }

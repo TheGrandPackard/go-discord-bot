@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/rs/zerolog/log"
@@ -55,10 +54,9 @@ var (
 
 func main() {
 	bot, err := godiscordbot.New(godiscordbot.Options{
-		DiscordToken:           "<DISCORD_TOKEN_GOES_HERE>",
-		GuildID:                "",
-		Intents:                discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates,
-		CommandDeletionTimeout: time.Second * 30,
+		DiscordToken:            "<DISCORD_BOT_TOKEN>",
+		RegisterSlashCommands:   true,
+		UnregisterSlashCommands: true,
 	})
 	if err != nil {
 		panic(err)
@@ -74,16 +72,10 @@ func main() {
 	}
 	defer bot.Stop()
 
-	// Register Slash Commands
-	bot.RegisterSlashCommands()
-
 	// Capture Ctrl-c to shut down bot
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
-
-	// Unregister Slash Commands
-	bot.UnregisterSlashCommands()
 
 	log.Info().Msg("Gracefully shutting down")
 }

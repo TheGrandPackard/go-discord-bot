@@ -29,8 +29,8 @@ func (d *DiscordBot) slashCommandProcessor(s *discordgo.Session, i *discordgo.In
 
 // Register slash commands with the discord server, unregistering any existing commands
 // Note: this only needs to be done if the ApplicationCommand definition changes, and not the handler
-func (d *DiscordBot) RegisterSlashCommands() {
-	d.UnregisterSlashCommands()
+func (d *DiscordBot) registerSlashCommands() {
+	d.unregisterSlashCommands()
 
 	log.Info().Msg("Registering Slash Commands")
 
@@ -45,7 +45,7 @@ func (d *DiscordBot) RegisterSlashCommands() {
 }
 
 // Unregister slash commands with the discord server
-func (d *DiscordBot) UnregisterSlashCommands() {
+func (d *DiscordBot) unregisterSlashCommands() {
 	log.Info().Msg("Unregistering Slash Commands")
 
 	if len(d.registeredSlashCommands) == 0 {

@@ -22,12 +22,12 @@ func (d *DiscordBot) legacyCommandProcessor(s *discordgo.Session, m *discordgo.M
 	}
 
 	// Ignore commands without prefix
-	if !strings.HasPrefix(m.Content, d.legacyCommandPrefix) {
+	if !strings.HasPrefix(m.Content, d.LegacyCommandPrefix) {
 		return
 	}
 
 	// Clean up user's command message
-	d.DeleteMessageWithTimeout(m.ChannelID, m.Message.ID, d.CommandDeletionTimeout)
+	d.DeleteMessageWithTimeout(m.ChannelID, m.Message.ID, d.LegacyCommandDeletionTimeout)
 
 	// Match command if exists
 	commandParts := strings.Split(m.Content, " ")
@@ -39,7 +39,7 @@ func (d *DiscordBot) legacyCommandProcessor(s *discordgo.Session, m *discordgo.M
 	}
 
 	// If no command exists, respond to the user and log the usage
-	d.SendMessageWithDeletionTimeout(m.ChannelID, responseUnknownLegacyCommand, d.CommandDeletionTimeout)
+	d.SendMessageWithDeletionTimeout(m.ChannelID, responseUnknownLegacyCommand, d.LegacyCommandDeletionTimeout)
 
 	log.Info().
 		Str("member", m.Author.Username).

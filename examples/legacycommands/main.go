@@ -12,6 +12,7 @@ import (
 
 var (
 	commands = map[string]func(d *godiscordbot.DiscordBot, m *discordgo.MessageCreate, arguments []string){
+		// Help Command
 		"!help": func(d *godiscordbot.DiscordBot, m *discordgo.MessageCreate, arguments []string) {
 			log.Info().
 				Str("member", m.Author.Username).
@@ -19,8 +20,9 @@ var (
 				Str("command", "!help").
 				Msg("Legacy Command Received")
 
-			d.SendMessageWithDeletionTimeout(m.ChannelID, "Help command response goes here.", d.CommandResponseTimeout)
+			d.SendMessageWithDeletionTimeout(m.ChannelID, "Help command response goes here.", d.LegacyCommandResponseTimeout)
 		},
+		// Info Command
 		"!info": func(d *godiscordbot.DiscordBot, m *discordgo.MessageCreate, arguments []string) {
 			log.Info().
 				Str("member", m.Author.Username).
@@ -28,7 +30,7 @@ var (
 				Str("command", "!info").
 				Msg("Legacy Command Received")
 
-			d.SendMessageWithDeletionTimeout(m.ChannelID, "This is an example discord bot.", d.CommandResponseTimeout)
+			d.SendMessageWithDeletionTimeout(m.ChannelID, "This is an example discord bot.", d.LegacyCommandResponseTimeout)
 		},
 	}
 )
@@ -37,10 +39,10 @@ func main() {
 	// Configure and initialize the bot
 	bot, err := godiscordbot.New(godiscordbot.Options{
 		DiscordToken:           "<DISCORD_BOT_TOKEN>",
-		Intents:                discordgo.IntentsGuildMessages,
-		CommandDeletionTimeout: time.Second * 30,
-		CommandResponseTimeout: time.Minute * 2,
-		LegacyCommandPrefix:    "!",
+		Intents:                      discordgo.IntentsGuildMessages,
+		LegacyCommandDeletionTimeout: time.Second * 30,
+		LegacyCommandResponseTimeout: time.Minute * 2,
+		LegacyCommandPrefix:          "!",
 	})
 	if err != nil {
 		panic(err)

@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/rs/zerolog/log"
@@ -54,9 +55,9 @@ var (
 
 func main() {
 	bot, err := godiscordbot.New(godiscordbot.Options{
-		DiscordToken:            "<DISCORD_BOT_TOKEN>",
-		RegisterSlashCommands:   true,
-		UnregisterSlashCommands: true,
+		RegisterSlashCommands:       true,
+		UnregisterSlashCommands:     true,
+		SlashCommandResponseTimeout: time.Minute * 2,
 	})
 	if err != nil {
 		panic(err)

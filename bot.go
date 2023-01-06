@@ -19,10 +19,10 @@ type Options struct {
 	Intents discordgo.Intent
 
 	// Legacy Commands
-	// The timeout before deleting user messages
-	CommandDeletionTimeout time.Duration
-	// The timeout before deleting bot responses
-	CommandResponseTimeout time.Duration
+	// The timeout before deleting user messages (empty or zero means messages are never deleted)
+	LegacyCommandDeletionTimeout time.Duration
+	// The timeout before deleting bot responses (empty or zero means messages are never deleted)
+	LegacyCommandResponseTimeout time.Duration
 	// Prefix for legacy commands, such as "!"
 	LegacyCommandPrefix string
 
@@ -31,6 +31,8 @@ type Options struct {
 	RegisterSlashCommands bool
 	// Whether or not to unregister slash commands when starting the bot
 	UnregisterSlashCommands bool
+	// The timeout before deleting bot responses (empty or zero means messages are never deleted)
+	SlashCommandResponseTimeout time.Duration
 }
 
 type DiscordBot struct {
@@ -40,16 +42,17 @@ type DiscordBot struct {
 	GuildID string
 
 	// Legacy Commands
-	CommandDeletionTimeout time.Duration
-	CommandResponseTimeout time.Duration
-	legacyCommandPrefix    string
-	legacyCommandHandlers  map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string)
+	LegacyCommandDeletionTimeout time.Duration
+	LegacyCommandResponseTimeout time.Duration
+	LegacyCommandPrefix          string
+	legacyCommandHandlers        map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string)
 
 	// Slash Commands
-	RegisterSlashCommands   bool
-	UnregisterSlashCommands bool
-	slashCommandHandlers    map[*discordgo.ApplicationCommand]func(d *DiscordBot, i *discordgo.InteractionCreate)
-	registeredSlashCommands []*discordgo.ApplicationCommand
+	RegisterSlashCommands       bool
+	UnregisterSlashCommands     bool
+	SlashCommandResponseTimeout time.Duration
+	slashCommandHandlers        map[*discordgo.ApplicationCommand]func(d *DiscordBot, i *discordgo.InteractionCreate)
+	registeredSlashCommands     []*discordgo.ApplicationCommand
 
 	// Message Components
 	messageComponentHandlers map[string]func(d *DiscordBot, i *discordgo.InteractionCreate)
@@ -59,13 +62,12 @@ func New(options Options) (*DiscordBot, error) {
 	bot := &DiscordBot{
 		// Configurations
 		GuildID: options.GuildID,
-		// Whether or not to register slash commands
 
 		// Legacy Commands
-		CommandDeletionTimeout: options.CommandDeletionTimeout,
-		CommandResponseTimeout: options.CommandResponseTimeout,
-		legacyCommandPrefix:    options.LegacyCommandPrefix,
-		legacyCommandHandlers:  map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string){},
+		LegacyCommandDeletionTimeout: options.LegacyCommandDeletionTimeout,
+		LegacyCommandResponseTimeout: options.LegacyCommandResponseTimeout,
+		LegacyCommandPrefix:          options.LegacyCommandPrefix,
+		legacyCommandHandlers:        map[string]func(d *DiscordBot, m *discordgo.MessageCreate, arguments []string){},
 
 		// Slash Commands
 		RegisterSlashCommands:   options.RegisterSlashCommands,

@@ -9,7 +9,7 @@ type Module interface {
 	GetMessageComponentHandlers() map[string]func(d *DiscordBot, i *discordgo.InteractionCreate)
 }
 
-// LoadModule is a helper to map any handlers defined by a cog
+// LoadModule is a helper to map any handlers defined by a module
 func (d *DiscordBot) LoadModule(module Module) {
 	d.MapLegacyCommands(module.GetLegacyCommandHandlers())
 	d.MapSlashCommands(module.GetSlashCommandHandlers())
